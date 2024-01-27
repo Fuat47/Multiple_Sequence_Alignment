@@ -20,13 +20,22 @@ def read_blosum62(file_path):
     amino_acids = lines[0].split()
 
     # The rest of the lines contain the matrix values
-    matrix_values = [line.split()[1:] for line in lines[1:]]
+    matrix_values = []
+    for line in lines[1:]:
+        matrix_values.append(line.split()[1:])
 
     # Convert the matrix values to integers
-    matrix_values = [[int(value) for value in row] for row in matrix_values]
+    for i in range(len(matrix_values)):
+        for j in range(len(matrix_values[i])):
+            matrix_values[i][j] = int(matrix_values[i][j])
 
     # Create the BLOSUM62 dictionary
-    blosum62 = {amino_acids[i]: {amino_acids[j]: matrix_values[i][j] for j in range(len(amino_acids))} for i in range(len(amino_acids))}
+    blosum62 = {}
+    for i in range(len(amino_acids)):
+        blosum62[amino_acids[i]] = {}
+        for j in range(len(amino_acids)):
+            blosum62[amino_acids[i]][amino_acids[j]] = matrix_values[i][j]
+
     return blosum62
 
 def global_alignment(seq1, seq2, blosum62, gap_penalty):
@@ -230,7 +239,7 @@ def print_group(key, alignment_dict):
             print(f"{matched_sequence[0].ljust(8)}: {value}")
     print()
     
-sequences = read_fasta('Input.txt')
+sequences = read_fasta('Input1.txt')
 blosum62 = read_blosum62('Blosum62.txt')
 gap_penalty = -int(input("Please enter the gap penalty: "))
 names = list(sequences.keys())
@@ -244,5 +253,3 @@ distance_dict['(' + names[0] + '-' + names[1] + ')'] = similarity_matrix[0][1]
 print("\nLast Group: " + '(' + names[0] + '-' + names[1] + ')\n')
 
 alignment_dict = perform_alignment(distance_dict, sequences, blosum62, gap_penalty)
-
-
